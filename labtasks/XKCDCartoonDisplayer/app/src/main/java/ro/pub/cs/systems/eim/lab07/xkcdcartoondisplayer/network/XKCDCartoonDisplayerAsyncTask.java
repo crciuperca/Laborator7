@@ -1,12 +1,33 @@
 package ro.pub.cs.systems.eim.lab07.xkcdcartoondisplayer.network;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.ResponseHandler;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.impl.client.BasicResponseHandler;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
+import ro.pub.cs.systems.eim.lab07.xkcdcartoondisplayer.entities.GifAnimationDrawable;
 import ro.pub.cs.systems.eim.lab07.xkcdcartoondisplayer.entities.XKCDCartoonInformation;
+import ro.pub.cs.systems.eim.lab07.xkcdcartoondisplayer.general.Constants;
 
 public class XKCDCartoonDisplayerAsyncTask extends AsyncTask<String, Void, XKCDCartoonInformation> {
 
@@ -48,7 +69,42 @@ public class XKCDCartoonDisplayerAsyncTask extends AsyncTask<String, Void, XKCDC
         // - create an instance of a HttpGet object
         // - create an instance of a ResponseHandler object
         // - execute the request, thus obtaining the web page source code
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(Constants.MY_INTERNET_ADDRESS);
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        String sourceCode = null;
+        try {
+            sourceCode = httpClient.execute(httpGet, responseHandler);
+        } catch (Exception e) {
+            Log.e(Constants.TAG, e.getMessage());
+            if (Constants.DEBUG) {
+                e.printStackTrace();
+            }
+        }
+        if (sourceCode != null) {
+            Document document = Jsoup.parse(sourceCode);
+            Element parent = document.child(0);
+            Element image = parent.getElementsByAttributeValue(Constants.ID_ATTRIBUTE, "comic-wrap").first();
+            String imageAddress = image.getElementsByTag(Constants.IMG_TAG).attr(Constants.SRC_ATTRIBUTE);
+            xkcdCartoonInformation.setCartoonUrl(Constants.HTTP_PROTOCOL + imageAddress);
 
+            GifAnimationDrawable gif;
+            try {
+                HttpGet httpGetCartoon = new HttpGet(xkcdCartoonInformation.getCartoonUrl());
+                HttpResponse httpResponse = httpClient.execute(httpGetCartoon);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                InputStream inputStream = new BufferedInputStream(new FileInputStream(xkcdCartoonInformation.getCartoonUrl()));
+                gif = new GifAnimationDrawable(inputStream);//BitmapFactory.decodeStream(httpEntity.getContent()))
+                if (httpEntity != null) {
+                    xkcdCartoonInformation.setCartoonBitmap(gif);
+                }
+            } catch (Exception e) {
+                Log.e(Constants.TAG, e.getMessage());
+                if (Constants.DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
         // 2. parse the web page source code
         // - cartoon title: get the tag whose id equals "ctitle"
         // - cartoon url
@@ -86,7 +142,10 @@ public class XKCDCartoonDisplayerAsyncTask extends AsyncTask<String, Void, XKCDC
         // based on cartoonUrl fetch the bitmap using Volley (using an ImageRequest object added to the queue)
         // and put it into xkcdCartoonImageView
         // previousCartoonUrl, nextCartoonUrl -> set the XKCDCartoonUrlButtonClickListener for previousButton, nextButton
-
+        GifAnimationDrawable cartoonBitmap = xkcdCartoonInformation.getCartoonBitmap();
+        if (cartoonBitmap != null) {
+            xkcdCartoonImageView.setImageDrawable(cartoonBitmap);
+        }
     }
 
 }

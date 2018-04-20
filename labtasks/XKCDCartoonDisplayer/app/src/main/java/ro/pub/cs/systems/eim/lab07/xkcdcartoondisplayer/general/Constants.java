@@ -7,10 +7,12 @@ public interface Constants {
     final public static String TAG = "[XKCDCartoonDisplayer]";
 
     final public static String XKCD_INTERNET_ADDRESS = "https://www.xkcd.com";
+    final public static String MY_INTERNET_ADDRESS = "http://explosm.net";
 
     final public static String ID_ATTRIBUTE = "id";
     final public static String CTITLE_VALUE = "ctitle";
     final public static String COMIC_VALUE = "comic";
+    final public static String MY_COMIC_VALUE = "comic-wrap";
     final public static String IMG_TAG = "img";
     final public static String SRC_ATTRIBUTE = "src";
     final public static String REL_ATTRIBUTE = "rel";

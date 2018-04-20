@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 public class XKCDCartoonInformation {
 
     private String cartoonTitle;
-    private Bitmap cartoonBitmap;
+    private GifAnimationDrawable cartoonBitmap;
     private String cartoonUrl;
     private String previousCartoonUrl, nextCartoonUrl;
 
@@ -18,7 +18,7 @@ public class XKCDCartoonInformation {
     }
 
     public XKCDCartoonInformation(String cartoonTitle,
-                                  Bitmap cartoonBitmap,
+                                  GifAnimationDrawable cartoonBitmap,
                                   String cartoonUrl,
                                   String previousCartoonUrl,
                                   String nextCartoonUrl) {
@@ -37,11 +37,11 @@ public class XKCDCartoonInformation {
         this.cartoonTitle = cartoonTitle;
     }
 
-    public Bitmap getCartoonBitmap() {
+    public GifAnimationDrawable getCartoonBitmap() {
         return cartoonBitmap;
     }
 
-    public void setCartoonBitmap(Bitmap cartoonBitmap) {
+    public void setCartoonBitmap(GifAnimationDrawable cartoonBitmap) {
         this.cartoonBitmap = cartoonBitmap;
     }
 
